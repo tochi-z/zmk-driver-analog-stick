@@ -1,6 +1,11 @@
 # ZMK Analog Stick Driver
 
-Multi-mode analog stick driver for ZMK firmware. Reads analog position sensors (TMR, hall-effect, etc.) via Zephyr ADC `io-channels` and supports three runtime modes switchable per keymap layer:
+Multi-mode analog stick driver for ZMK firmware.
+
+This repository is a fork of wdtamagi/zmk-driver-analog-stick.
+It includes a small split-build compatibility fix for ZMK split keyboards, keeping the HID accumulator on the central side where required.
+
+Reads analog position sensors (TMR, hall-effect, etc.) via Zephyr ADC `io-channels` and supports three runtime modes switchable per keymap layer:
 
 - **Switch mode** — Joystick acts as 4 (or 8 diagonal) directional keys with configurable threshold and hysteresis
 - **Mouse pointer mode** — Distance from center controls cursor speed with acceleration ramp
@@ -388,6 +393,18 @@ notification per scan cycle.
 - **`up-keycode`**, **`down-keycode`**, **`left-keycode`**, **`right-keycode`** removed from the listener child binding. Replaced with **`up-position`**, **`down-position`**, **`left-position`**, **`right-position`** which reference keymap position indices.
 - Stick directions must now be defined as positions in the matrix transform and physical layout, with behavior bindings in the keymap. This enables ZMK Studio editing and support for any ZMK behavior (`&kp`, `&mo`, `&lt`, `&tog`, etc.).
 - Migration steps: (1) add stick direction entries to your matrix transform, (2) add matching keys to your physical layout, (3) add behavior bindings at those positions in each keymap layer, (4) update listener child nodes to use `up-position = <N>` etc.
+
+## Fork Changes
+
+This fork contains the following split-build compatibility changes:
+
+- `CMakeLists.txt`
+  - Builds `hid_accumulator.c` only on the central side when split mode is enabled.
+- `src/analog_stick/scan_coordinator.c`
+  - Includes `hid_accumulator.h` only on the central side.
+  - Calls `zmk_analog_stick_hid_flush()` only on the central side.
+
+These changes prevent linker errors when building the peripheral side with ZMK split support
 
 ## License
 
