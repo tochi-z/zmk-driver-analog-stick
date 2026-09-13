@@ -19,7 +19,10 @@
 #include <zephyr/sys/util.h>
 
 #include <analog-stick/analog_stick_internal.h>
+
+#if !defined(CONFIG_ZMK_SPLIT) || defined(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
 #include <analog-stick/hid_accumulator.h>
+#endif
 
 #if defined(CONFIG_ZMK_BLE) && !defined(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
 #include <zephyr/bluetooth/conn.h>
@@ -202,7 +205,9 @@ static void scan_coordinator_work_handler(struct k_work *work) {
     }
 
     /* --- Phase 3: HID flush (one combined report for all sticks) --- */
+    #if !defined(CONFIG_ZMK_SPLIT) || defined(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
     zmk_analog_stick_hid_flush();
+    #endif
 
     /* --- Phase 4: Adaptive rate selection and pulse-read management --- */
     bool any_active = false;
